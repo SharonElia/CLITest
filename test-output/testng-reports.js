@@ -1,3 +1,5 @@
+
+// Sharon
 $(document).ready(function() {
     $('a.navigator-link').click(function() {
         // Extract the panel for this link
