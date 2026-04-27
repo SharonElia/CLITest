@@ -1,0 +1,11 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<suite name="CLI Test Suite">
+    <test name="CLI Commands">
+        <classes>
+            <class name="Test.TestCdCommand"/>
+            <class name="Test.TestLsCommand"/>
+            <class name="Test.TestMkdirCommand"/>
+            <class name="Test.TestTouchCommand"/>
+        </classes>
+    </test>
+</suite>

@@ -1,7 +1,6 @@
 package OsOperation;
 import SystemUtilityOpertion.DirectoryInit;
 import SystemUtilityOpertion.AddDirectoryAndFolder;
-import Test.TestLs;
 import java.util.Scanner;
 import Log.Log;
 /*This is the main class:
@@ -11,7 +10,6 @@ import Log.Log;
 public class QueryRunner {
     static Scanner  sc = new Scanner(System.in);
     static String inputSelected;
-    static TestLs testCli = new TestLs();
     // Create Directory Tree
     public QueryRunner() {
       AddDirectoryAndFolder.createDirectoryTree(new DirectoryInit());

@@ -1,13 +1,16 @@
 package SystemUtilityOpertion;
-// Class for initialization the directories
+
+// Represents a directory node in the virtual file system.
 public class DirectoryInit extends FileInitialization {
-    // Constructor for directory
+
+    // Creates the root directory.
     public DirectoryInit() {
         super("root", (DirectoryInit) null);
     }
-    // Constructor for directory(name,parent)
+
+    // Creates a child directory with a given parent.
     public DirectoryInit(String name, DirectoryInit parent) {
         super(name, parent);
     }
 
-    }
+}

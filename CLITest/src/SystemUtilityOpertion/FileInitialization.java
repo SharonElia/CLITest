@@ -1,14 +1,17 @@
 package SystemUtilityOpertion;
-//initialization the files/ Dirs
+
+// Represents a file-system entry (file or directory metadata).
 public class FileInitialization {
     protected String name;
     protected DirectoryInit parent;
     public String content;
+
     public FileInitialization(String name, DirectoryInit parent) {
         this.name = name;
         this.parent = parent;
     }
-    //get name of the files/directors
+
+    // Returns file or directory name.
     public String getName() {
         return this.name;
     }
@@ -26,13 +29,12 @@ public class FileInitialization {
     }
 
     public FileInitialization(String name, DirectoryInit parent, String content) {
-        this.name=name;
-        this.parent=parent;
+        this.name = name;
+        this.parent = parent;
         this.content = content;
     }
 
     public FileInitialization(String name, String content) {
         this(name, AddDirectoryAndFolder.getCurrent(), content);
     }
-
 }

@@ -1,42 +1,41 @@
 package SystemUtilityOpertion;
+
 import java.util.ArrayList;
-//Adding the Files/ Directory to the tree
+
+// Manages current directory context and path navigation in the virtual tree.
 public class AddDirectoryAndFolder {
 
-    private static ArrayList<DirectoryInit> tree = new ArrayList<>();
     private static AddDirectoryAndFolder self;
     private static DirectoryInit current;
     private static DirectoryInit root;
     private static DirectoryInit virtualCurrent;
-    private CreateListAndTree fileTree;
-    //Constructor the tree
+
+    // Initializes directory context and creates the backing tree.
     public AddDirectoryAndFolder(DirectoryInit root) {
         AddDirectoryAndFolder.current = root;
         AddDirectoryAndFolder.virtualCurrent = root;
         AddDirectoryAndFolder.root = root;
-        //adding root folder to the directory tree
-        fileTree = CreateListAndTree.create(root);
-      // DirectoryTree.add(root);
+        // Add root directory to the in-memory tree.
+        CreateListAndTree.create(root);
     }
 
     public AddDirectoryAndFolder() {
 
     }
-    //Creating the Directory Tree
-    public static AddDirectoryAndFolder createDirectoryTree (DirectoryInit root) {
-        if (! (self instanceof AddDirectoryAndFolder)) {
+
+    // Creates the directory tree singleton when needed.
+    public static AddDirectoryAndFolder createDirectoryTree(DirectoryInit root) {
+        if (!(self instanceof AddDirectoryAndFolder)) {
             self = new AddDirectoryAndFolder(root);
         }
 
         return self;
     }
 
-    //methods to verify if (tree.contains(directory))
+    // Updates both virtual and actual current directory pointers.
     public static void setCurrent(DirectoryInit directory) {
-        {
         virtualCurrent = directory;
         current = directory;
-        }
     }
 
     public static DirectoryInit getCurrent() {
@@ -53,7 +52,7 @@ public class AddDirectoryAndFolder {
 
     public static ArrayList<DirectoryInit> getFoldersOn(DirectoryInit target) {
         ArrayList<DirectoryInit> directories = new ArrayList<>();
-        for (DirectoryInit directory : tree) {
+        for (DirectoryInit directory : CreateListAndTree.getTree()) {
             if (directory.getParent() == target) {
                 directories.add(directory);
             }
@@ -61,11 +60,13 @@ public class AddDirectoryAndFolder {
 
         return directories;
     }
-    //List of the folders
+
+    // Returns folders under the current directory.
     public static ArrayList<DirectoryInit> getFoldersOnCurrent() {
         return getFoldersOn(current);
     }
-    //Found the name of the Directory
+
+    // Finds a directory by name under the provided current directory.
     public static DirectoryInit findDirOn(DirectoryInit current, String directoryName) {
         for (FileInitialization d : CreateListAndTree.getFilesOf(current)) {
             if (d.getName().equals(directoryName)) {
@@ -75,10 +76,7 @@ public class AddDirectoryAndFolder {
         return null;
     }
 
-    /*
-      Setting path to current if exists
-
-     */
+    // Sets current directory if the provided path exists.
     public static boolean setPath(String path) {
         DirectoryInit directory = AddDirectoryAndFolder.getDirectory(path);
 
@@ -91,10 +89,13 @@ public class AddDirectoryAndFolder {
         return false;
     }
 
-    /*
-      Getting directory of path
-     */
+    // Resolves and returns a directory from a path.
     public static DirectoryInit getDirectory(String path) {
+        if (path == null || path.isEmpty()) {
+            return null;
+        }
+
+        DirectoryInit originalVirtualCurrent = AddDirectoryAndFolder.getVirtualCurrent();
 
         if (path.charAt(0) == '/') {
             AddDirectoryAndFolder.setVirtualCurrent(root);
@@ -104,13 +105,17 @@ public class AddDirectoryAndFolder {
         String[] directories = path.split("/");
 
         for (String directory : directories) {
+            if (directory.isEmpty() || directory.equals(".")) {
+                continue;
+            }
+
             DirectoryInit virtual = AddDirectoryAndFolder.getVirtualCurrent();
             DirectoryInit parent = virtual.getParent();
 
             if (directory.equals("..")) {
 
                 if (parent == null) {
-                    AddDirectoryAndFolder.setVirtualCurrent(AddDirectoryAndFolder.getCurrent());
+                    AddDirectoryAndFolder.setVirtualCurrent(originalVirtualCurrent);
                     return null;
                 }
 
@@ -120,7 +125,7 @@ public class AddDirectoryAndFolder {
                 currentDirectory = AddDirectoryAndFolder.findDirOn(virtual, directory);
 
                 if (currentDirectory == null) {
-                    AddDirectoryAndFolder.setVirtualCurrent(AddDirectoryAndFolder.getCurrent());
+                    AddDirectoryAndFolder.setVirtualCurrent(originalVirtualCurrent);
                     return null;
                 }
 
@@ -130,23 +135,38 @@ public class AddDirectoryAndFolder {
         }
 
         DirectoryInit directoryFound = AddDirectoryAndFolder.getVirtualCurrent();
-        AddDirectoryAndFolder.setVirtualCurrent(AddDirectoryAndFolder.getCurrent());
+        AddDirectoryAndFolder.setVirtualCurrent(originalVirtualCurrent);
 
         return directoryFound;
     }
 
-    //checks if path exists and if it does it sets a virtual current directory
-    public static Boolean pathExists(String path) {
+    // Checks whether a path exists using virtual traversal only.
+    public static boolean pathExists(String path) {
+        if (path == null || path.isEmpty()) {
+            return false;
+        }
+
+        DirectoryInit originalVirtualCurrent = AddDirectoryAndFolder.getVirtualCurrent();
+
+        if (path.charAt(0) == '/') {
+            AddDirectoryAndFolder.setVirtualCurrent(root);
+            path = path.substring(1);
+        }
 
         String[] directories = path.split("/");
 
         for (String directory : directories) {
+            if (directory.isEmpty() || directory.equals(".")) {
+                continue;
+            }
+
             DirectoryInit virtual = AddDirectoryAndFolder.getVirtualCurrent();
             DirectoryInit parent = virtual.getParent();
 
             if (directory.equals("..")) {
 
                 if (parent == null) {
+                    AddDirectoryAndFolder.setVirtualCurrent(originalVirtualCurrent);
                     return false;
                 }
 
@@ -156,6 +176,7 @@ public class AddDirectoryAndFolder {
                 currentDirectory = AddDirectoryAndFolder.findDirOn(virtual, directory);
 
                 if (currentDirectory == null) {
+                    AddDirectoryAndFolder.setVirtualCurrent(originalVirtualCurrent);
                     return false;
                 }
 
@@ -164,13 +185,15 @@ public class AddDirectoryAndFolder {
 
         }
 
+        AddDirectoryAndFolder.setVirtualCurrent(originalVirtualCurrent);
         return true;
     }
-    //killProcess
-    public static void killProcess () {
+
+    // Resets static process state.
+    public static void killProcess() {
         self = null;
-        tree = new ArrayList<>();
         current = null;
+        root = null;
         virtualCurrent = null;
     }
 
